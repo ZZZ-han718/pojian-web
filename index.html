@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B站破茧探索</title>
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--line:#ececef;--ink:#1f2329;--ink-2:#646a73;--ink-3:#9aa0a8;--brand:#00a1d6;--brand-deep:#0088b3;--brand-soft:#e6f6fc;--warn:#d4463c;--radius:14px;--shadow:0 1px 2px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.05);}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;}
+body{background:var(--bg);padding:24px 16px 60px;color:var(--ink);}
+.wrap{max-width:1200px;margin:0 auto;}
+.hero{padding:8px 4px 20px;}
+.hero .eyebrow{font-size:12px;letter-spacing:.18em;color:var(--brand);font-weight:600;}
+.hero h1{font-size:26px;margin-top:6px;font-weight:700;}
+.hero p{font-size:13.5px;color:var(--ink-2);margin-top:8px;line-height:1.7;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow);}
+.card-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--brand);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;}
+.card-head h2{font-size:15px;font-weight:600;}
+.card-head .hint{font-size:12px;color:var(--ink-3);margin-left:auto;}
+.selected-box{min-height:40px;border:1.5px dashed #d8dde3;border-radius:10px;padding:8px 10px;background:#fafbfc;display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.selected-box:empty::before{content:"点下面标签选择兴趣";color:var(--ink-3);font-size:12.5px;}
+.chip-on{background:var(--brand);color:#fff;font-size:12.5px;padding:4px 10px;border-radius:14px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;}
+.group-title{font-size:12px;color:var(--ink-3);margin:16px 0 8px;font-weight:500;}
+.tag-cloud{display:flex;flex-wrap:wrap;gap:7px;}
+.tag{font-size:13px;padding:5px 12px;border-radius:16px;border:1px solid #e2e5ea;background:#fff;cursor:pointer;user-select:none;color:var(--ink-2);transition:all .15s;}
+.tag:hover{border-color:var(--brand);color:var(--brand);}
+.tag.active{background:var(--brand-soft);border-color:var(--brand);color:var(--brand-deep);font-weight:500;}
+.custom-row{display:flex;gap:8px;margin-top:14px;}
+.custom-row input{flex:1;padding:9px 12px;border:1px solid #e2e5ea;border-radius:10px;font-size:13.5px;outline:none;}
+.custom-row button{width:70px;border:none;background:var(--ink);color:#fff;border-radius:10px;cursor:pointer;}
+.row{display:flex;gap:10px;margin-top:4px;flex-wrap:wrap;}
+button.main{flex:1;min-width:140px;border:none;background:linear-gradient(135deg,#00b5e5,#0088b3);color:#fff;cursor:pointer;font-weight:600;font-size:14px;border-radius:10px;padding:11px;}
+button.rand{flex:1;min-width:140px;border:1.5px solid #f0b429;background:#fffbe8;color:#9a6b00;cursor:pointer;font-weight:600;font-size:14px;border-radius:10px;padding:11px;}
+.stats{display:none;gap:14px;flex-wrap:wrap;margin-bottom:14px;padding:12px 16px;background:linear-gradient(135deg,#f0f9fd,#fdf6ee);border-radius:10px;border:1px solid #e3edf2;}
+.stats.show{display:flex;}
+.stat{font-size:12.5px;color:var(--ink-2);}
+.stat b{font-size:16px;color:var(--ink);margin-right:4px;}
+.stat.good b{color:#2ea44f;}
+.grid{display:flex;flex-wrap:wrap;gap:16px;margin-top:10px;}
+.card-item{flex:0 1 200px;min-width:180px;max-width:240px;}
+.cover-link{display:block;text-decoration:none;}
+.card-item .cover-wrap{position:relative;width:100%;aspect-ratio:16/10;border-radius:8px;overflow:hidden;background:#eef0f3;}
+.card-item img.cover{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s;}
+.cover-link:hover img.cover{transform:scale(1.05);}
+.card-item .duration{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.7);color:#fff;font-size:11px;padding:1px 6px;border-radius:4px;}
+.card-item .tname-tag{position:absolute;left:6px;top:6px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;padding:2px 7px;border-radius:4px;}
+.card-item .card-title{font-size:13.5px;line-height:1.45;margin-top:8px;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.card-item .card-title a{color:inherit;text-decoration:none;}
+.card-item .card-title a:hover{color:var(--brand);}
+.card-item .card-meta{font-size:11.5px;color:var(--ink-3);margin-top:5px;}
+.card-item .card-score{font-size:11.5px;margin-top:4px;font-weight:500;}
+.card-score.fresh{color:#2ea44f;}
+.card-score.warn{color:var(--warn);}
+.card-score.random{color:#9a6b00;}
+.empty{color:var(--ink-3);text-align:center;padding:40px 20px;font-size:13px;}
+.divider{display:flex;align-items:center;gap:10px;color:var(--ink-3);font-size:11px;margin:14px 0 4px;}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line);}
+.about{padding:22px 18px 20px;text-align:center;}
+.about .about-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;}
+.about .contact{font-size:12.5px;color:var(--ink-2);line-height:2;}
+.about .contact b{color:var(--ink);font-weight:600;}
+.about .note{font-size:12px;color:var(--ink-3);margin-top:8px;line-height:1.7;}
+.about .tip-img{width:300px;height:300px;object-fit:contain;border-radius:12px;margin:14px auto 0;display:block;border:1px solid var(--line);background:#fff;padding:4px;}
+.about .tip-label{font-size:11.5px;color:var(--ink-3);margin-top:8px;}
+.about .tip-title{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;font-weight:600;color:var(--ink);letter-spacing:.02em;}
+.about .tip-thanks{font-size:13px;color:#b45309;font-weight:600;margin-top:10px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="eyebrow">DE · DIVERSITY EXPLORER</div>
+    <h1>B站破茧探索</h1>
+    <p>选标签 → 优先推陌生内容；懒得选 → 点"随便推"。点封面直接跳转视频。</p>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="step-num">1</div><h2>你的兴趣标签</h2><span class="hint">点选切换</span></div>
+    <div class="selected-box" id="selectedBox"></div>
+    <div class="group-title">学术 / 科研</div>
+    <div class="tag-cloud">
+      <span class="tag">岩土</span><span class="tag">混凝土</span><span class="tag">材料实验</span><span class="tag">XRD</span><span class="tag">SEM</span><span class="tag">Origin绘图</span><span class="tag">SCI论文</span><span class="tag">考研</span><span class="tag">留学</span>
+    </div>
+    <div class="group-title">科技 / 数码</div>
+    <div class="tag-cloud">
+      <span class="tag">半导体</span><span class="tag">数码测评</span><span class="tag">Python</span><span class="tag">编程</span><span class="tag">AI工具</span><span class="tag">芯片</span><span class="tag">手机</span><span class="tag">笔记本</span>
+    </div>
+    <div class="group-title">历史 / 人文</div>
+    <div class="tag-cloud">
+      <span class="tag">历史</span><span class="tag">考古</span><span class="tag">哲学</span><span class="tag">纪录片</span><span class="tag">地理</span><span class="tag">博物馆</span>
+    </div>
+    <div class="group-title">生活 / 兴趣</div>
+    <div class="tag-cloud">
+      <span class="tag">美食</span><span class="tag">做饭</span><span class="tag">旅行</span><span class="tag">健身</span><span class="tag">咖啡</span><span class="tag">宠物</span><span class="tag">植物</span><span class="tag">家居</span><span class="tag">穿搭</span>
+    </div>
+    <div class="group-title">影视 / 娱乐</div>
+    <div class="tag-cloud">
+      <span class="tag">电影解说</span><span class="tag">美剧</span><span class="tag">日剧</span><span class="tag">综艺</span><span class="tag">音乐</span><span class="tag">吉他</span>
+    </div>
+    <div class="group-title">游戏 / 二次元</div>
+    <div class="tag-cloud">
+      <span class="tag">游戏实况</span><span class="tag">原神</span><span class="tag">无畏契约</span><span class="tag">动漫</span><span class="tag">手办</span>
+    </div>
+    <div class="custom-row">
+      <input id="customInput" placeholder="输入标签，回车添加" />
+      <button id="addBtn">添加</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="step-num">2</div><h2>选一种方式</h2></div>
+    <div class="row"><button class="main" id="fetchBtn">🎯 按兴趣排序全站热门</button></div>
+    <div class="divider">或者</div>
+    <div class="row"><button class="rand" id="randBtn">🎲 随便推（全站热门随机打乱）</button></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="step-num">3</div><h2>结果</h2><span class="hint">绿色 = 真·陌生</span></div>
+    <div class="stats" id="stats"></div>
+    <div id="result" class="empty">点上方按钮开始</div>
+  </div>
+
+  <div class="card about">
+    <div class="about-title">关于作者</div>
+    <div class="contact">
+      <b>作者：</b>ZZZ<br>
+      <b>微信：</b>sleep123zzzzz
+    </div>
+    <div class="note">这个小工具完全本地运行，不收集任何数据。</div>
+    <div class="tip-title">打赏码</div>
+    <img class="tip-img" id="tipImg" src="tip.jpg" alt="打赏码" onerror="this.style.display='none';document.getElementById('tipFallback').style.display='block'">
+    <div id="tipFallback" class="note" style="display:none;padding:20px 0;">（打赏码图片 tip.jpg 未上传）</div>
+    <div class="tip-label">微信 / 支付宝 打赏码，扫码即可</div>
+    <div class="tip-thanks">创作不易，谢谢老板！</div>
+  </div>
+</div>
+<script>
+const selectedBox=document.getElementById('selectedBox'),customInput=document.getElementById('customInput'),addBtn=document.getElementById('addBtn'),fetchBtn=document.getElementById('fetchBtn'),randBtn=document.getElementById('randBtn'),resultDom=document.getElementById('result'),statsDom=document.getElementById('stats');
+let selectedTags=new Set();
+function renderSelected(){selectedBox.innerHTML='';for(const t of selectedTags){const c=document.createElement('span');c.className='chip-on';c.innerHTML=t+' <span style="opacity:.7">×</span>';c.onclick=()=>{selectedTags.delete(t);sync();renderSelected();};selectedBox.appendChild(c);}}
+function sync(){document.querySelectorAll('.tag').forEach(el=>el.classList.toggle('active',selectedTags.has(el.textContent.trim().toLowerCase())));}
+document.querySelectorAll('.tag').forEach(el=>el.onclick=()=>{const t=el.textContent.trim().toLowerCase();selectedTags.has(t)?selectedTags.delete(t):selectedTags.add(t);sync();renderSelected();});
+function addCustom(){const v=customInput.value.trim().toLowerCase();if(!v)return;selectedTags.add(v);customInput.value='';sync();renderSelected();}
+addBtn.onclick=addCustom;customInput.addEventListener('keydown',e=>{if(e.key==='Enter')addCustom();});
+function calcNov(title,list){const t=title.toLowerCase();const hit=list.filter(k=>t.includes(k));return{novelty:1-hit.length/Math.max(list.length,1),hitKws:hit};}
+async function fetchRank(){const r=await fetch('/api/bili?path=x/web-interface/popular&ps=20&pn=1');const j=await r.json();if(j.code!==0)throw new Error(j.message||'接口异常');return(j.data&&j.data.list)||[];}
+fetchBtn.onclick=async()=>{const it=[...selectedTags];if(!it.length){resultDom.innerHTML='<div class="empty" style="color:#d4463c">请先选标签，或点"随便推"</div>';return;}fetchBtn.disabled=randBtn.disabled=true;resultDom.innerHTML='<div class="empty">请求中…</div>';try{const list=await fetchRank().then(l=>l.map(x=>({...x,...calcNov(x.title,it),mode:'interest'})));list.sort((a,b)=>(b.novelty+Math.random()*0.08)-(a.novelty+Math.random()*0.08));renderStats(list,'interest');render(list);}catch(e){resultDom.innerHTML='<div class="empty" style="color:#d4463c">'+e.message+'</div>';}fetchBtn.disabled=randBtn.disabled=false;};
+randBtn.onclick=async()=>{fetchBtn.disabled=randBtn.disabled=true;resultDom.innerHTML='<div class="empty">随机抽取中…</div>';try{const all=await fetchRank();const d=all.sort(()=>Math.random()-0.5).slice(0,20).map(x=>({...x,mode:'random'}));renderStats(d,'random');render(d);}catch(e){resultDom.innerHTML='<div class="empty" style="color:#d4463c">'+e.message+'</div>';}fetchBtn.disabled=randBtn.disabled=false;};
+function renderStats(list,mode){if(!list.length){statsDom.classList.remove('show');return;}if(mode==='random'){statsDom.innerHTML='<div class="stat good"><b>🎲</b>随机模式</div><div class="stat"><b>'+list.length+'</b>条视频</div><div class="stat">全站热门打乱</div>';}else{const avg=list.reduce((s,x)=>s+x.novelty,0)/list.length;const h=list.filter(x=>x.hitKws.length>0).length;statsDom.innerHTML='<div class="stat"><b>'+list.length+'</b>条</div><div class="stat good"><b>'+avg.toFixed(2)+'</b>平均新奇分</div><div class="stat"><b>'+h+'</b>条命中兴趣</div>';}statsDom.classList.add('show');}
+function fmtD(s){if(!s&&s!==0)return'';const m=Math.floor(s/60),sec=Math.floor(s%60);return m+':'+(sec<10?'0':'')+sec;}
+function proxied(pic){return '/api/img?url='+encodeURIComponent(pic);}
+function render(list){if(!list.length){resultDom.innerHTML='<div class="empty">没拿到数据</div>';return;}resultDom.innerHTML='<div class="grid">'+list.map(it=>{const link='https://www.bilibili.com/video/'+it.bvid;const owner=it.owner?it.owner.name:(it.author||'UP');const view=it.stat?it.stat.view:it.play;const t=it.tname||'其他';const d=fmtD(it.duration);let s='';if(it.mode==='random'){s='<div class="card-score random">🎲 '+t+' · 纯随机</div>';}else{s='<div class="card-score '+(it.novelty>=0.7?'fresh':'warn')+'">'+t+' · 新奇分 '+it.novelty.toFixed(2)+'</div>';}return '<div class="card-item"><a class="cover-link" target="_blank" href="'+link+'"><div class="cover-wrap"><img class="cover" src="'+proxied(it.pic)+'" loading="lazy"><span class="tname-tag">'+t+'</span>'+(d?'<span class="duration">'+d+'</span>':'')+'</div></a><div class="card-title"><a target="_blank" href="'+link+'">'+it.title+'</a></div><div class="card-meta">UP：'+owner+' · 播放 '+view+'</div>'+s+'</div>';}).join('')+'</div>';}
+</script>
+</body>
+</html>
